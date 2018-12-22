@@ -1,0 +1,49 @@
+/// <reference types="node" />
+import * as fs from 'fs';
+import { AttachmentsResponse } from '../AccountingAPI-responses';
+import { AccessToken, IOAuth1HttpClient } from './OAuth1HttpClient';
+/**
+ * TODO: Add support for the following keys:
+ *
+ * - PrivateKeyPassword
+ */
+export interface XeroClientConfiguration {
+    appType: 'public' | 'private' | 'partner';
+    consumerKey: string;
+    consumerSecret: string;
+    privateKeyPath?: string;
+    privateKeyString?: string;
+    callbackUrl?: string;
+    userAgent?: string;
+}
+/**
+ * @private
+ * Options specific to the API in use
+ */
+export interface ApiConfiguration {
+    tenantType?: string;
+    apiBasePath?: string;
+}
+/** @private */
+export interface IHttpClient {
+    get<T>(endpoint: string, headers?: {
+        [key: string]: string;
+    }): Promise<T>;
+    delete<T>(endpoint: string, headers?: {
+        [key: string]: string;
+    }): Promise<T>;
+    put<T>(endpoint: string, body: object, headers?: {
+        [key: string]: string;
+    }): Promise<T>;
+    post<T>(endpoint: string, body: object, headers?: {
+        [key: string]: string;
+    }): Promise<T>;
+    writeUTF8ResponseToStream(endpoint: string, mimeType: string, writeStream: fs.WriteStream): Promise<void>;
+    writeBinaryResponseToStream(endpoint: string, mimeType: string, writeStream: fs.WriteStream): Promise<void>;
+    readStreamToRequest(endpoint: string, mimeType: string, size: number, readStream: fs.ReadStream): Promise<AttachmentsResponse>;
+}
+/** @private */
+export declare class BaseAPIClient {
+    readonly oauth1Client: IOAuth1HttpClient;
+    constructor(xeroConfig: XeroClientConfiguration, authState?: AccessToken, apiConfig?: ApiConfiguration, oauth1Client?: IOAuth1HttpClient);
+}
